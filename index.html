@@ -46,10 +46,36 @@
       background-color: orange;
       font-weight: bold;
     }
+
+    /* Capitalize and center text inputs and select */
+    input[type="text"], select {
+      text-transform: uppercase;
+      text-align: center;
+    }
+
+    input[type="number"], select {
+      text-align: center;
+    }
+
     input[type="text"], input[type="number"], input[type="date"], select {
       width: 100%;
       box-sizing: border-box;
+      padding: 4px;
     }
+
+    th, td, input, select {
+      font-weight: bold;
+    }
+    
+    .green-sum {
+      background-color: #90ee90;
+      font-weight: bold;
+      text-align: center;
+      font-size: 16px;
+    }
+
+
+
   </style>
 </head>
 <body>
@@ -71,7 +97,6 @@
               <select id="shift">
                 <option value="">Select</option>
                 <option value="Morning">Morning</option>
-                <option value="Evening">Evening</option>
                 <option value="Night">Night</option>
               </select>
             </div>
@@ -122,6 +147,11 @@
         <td colspan="6" class="yellow-sum" id="yellowSum">0</td>
         <td colspan="4" class="orange-sum" id="orangeSum">0</td>
       </tr>
+      <tr id="greenRow">
+        <td colspan="10" class="green-sum">Final Balance: ₹ 0</td>
+      </tr>
+
+
     </table>
 
     <br />
@@ -163,6 +193,10 @@
       const lena = sum(".lena");
       const bank = sum(".bank");
 
+      const yellowTotal = punter + plus - minus + dena;
+      const orangeTotal = lena + bank;
+      const greenTotal = yellowTotal - orangeTotal;
+
       document.getElementById("totalPunter").textContent = punter;
       document.getElementById("totalPlus").textContent = plus;
       document.getElementById("totalMinus").textContent = minus;
@@ -170,9 +204,12 @@
       document.getElementById("totalLena").textContent = lena;
       document.getElementById("totalBank").textContent = bank;
 
-      document.getElementById("yellowSum").textContent = punter + plus - minus + dena;
-      document.getElementById("orangeSum").textContent = lena + bank;
+      document.getElementById("yellowSum").textContent = yellowTotal;
+      document.getElementById("orangeSum").textContent = orangeTotal;
+      document.getElementById("greenRow").querySelector("td").textContent =
+        `Balance: ₹ ${greenTotal}`;
     }
+
 
     function attachListeners() {
       document.querySelectorAll("input[type='number']")
@@ -187,7 +224,7 @@
       html2canvas(form, { scale: 2 }).then(canvas => {
         const imgData = canvas.toDataURL("image/png");
         const pdf = new jspdf.jsPDF({
-          orientation: 'landscape',
+          orientation: 'landscape', // ← switched to vertical
           unit: 'mm',
           format: 'a4'
         });
@@ -201,7 +238,7 @@
 
         let y = 0;
         if (imgHeight < pageHeight) {
-         y = (pageHeight - imgHeight) / 2; // center vertically if shorter
+          y = (pageHeight - imgHeight) / 2;
         }
 
         pdf.addImage(imgData, 'PNG', 0, y, imgWidth, imgHeight);

@@ -2,70 +2,100 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Balance Sheet</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <style>
     table {
       border-collapse: collapse;
-      width: 100%;
+      width: auto;
       table-layout: auto;
     }
     th, td {
       border: 1px solid black;
       text-align: center;
-      padding: 6px;
-      word-wrap: break-word;
+      padding: 8px;
     }
-    th { background-color: #add8e6; }
-    .red { background-color: red; color: white; }
-    .light-green { background-color: #d3f9d8; }
-    .aqua { background-color: aqua; }
-    .total-row { background-color: #ccffcc; font-weight: bold; }
-    .yellow-sum { background-color: yellow; font-weight: bold; }
-    .orange-sum { background-color: orange; font-weight: bold; }
-    .green-sum { background-color: #90ee90; font-weight: bold; text-align: center; font-size: 16px; }
+    th {
+      background-color: #add8e6;
+    }
+    .red {
+      background-color: red;
+      color: white;
+    }
+    .light-green {
+      background-color: #d3f9d8;
+    }
+    .aqua {
+      background-color: aqua;
+    }
+    .light-blue {
+      background-color: #e0f0ff;
+    }
+    .light-orange {
+      background-color: #ffe5cc;
+    }
+    .total-row {
+      background-color: #ccffcc;
+      font-weight: bold;
+    }
+    .yellow-sum {
+      background-color: yellow;
+      font-weight: bold;
+    }
+    .orange-sum {
+      background-color: orange;
+      font-weight: bold;
+    }
 
-    /* Inputs */
+    /* Capitalize and center text inputs and select */
     input[type="text"], select {
       text-transform: uppercase;
       text-align: center;
     }
+
     input[type="number"], select {
       text-align: center;
     }
-    input, select {
-      width: 100%;
+
+    input[type="text"], input[type="number"], input[type="date"], select {
+      width: auto;
+      min-width: 60px;
       box-sizing: border-box;
       padding: 4px;
-      font-weight: bold;
     }
 
-    /* Responsive for mobile */
-    @media (max-width: 768px) {
-      table { font-size: 12px; }
-      th, td { padding: 4px; }
-      input, select { font-size: 12px; }
+    th, td, input, select {
+      font-weight: bold;
     }
+    
+    .green-sum {
+      background-color: #90ee90;
+      font-weight: bold;
+      text-align: center;
+      font-size: 16px;
+    }
+
+
+
   </style>
 </head>
 <body>
   <form id="balanceForm">
     <table id="balanceTable">
       <tr>
-        <td colspan="10" style="background-color: #cceeff;">
-          <div style="display: flex; flex-wrap: wrap; gap: 10px; padding: 8px;">
+        <td colspan="10" style="background-color: #cceeff; text-align: left;">
+          <div style="display: flex; gap: 20px; padding: 8px; align-items: center;">
             <div>
-              <label><b>BRANCH NAME:</b></label><br />
+              <label style="font-weight: bold;">BRANCH NAME:</label><br />
               <input type="text" id="branchName" />
             </div>
             <div>
-              <label><b>DATE:</b></label><br />
+              <label style="font-weight: bold;">DATE:</label><br />
               <input type="date" id="reportDate" />
             </div>
             <div>
-              <label><b>SHIFT:</b></label><br />
+              <label style="font-weight: bold;">SHIFT:</label><br />
               <select id="shift">
                 <option value="">Select</option>
                 <option value="Morning">Morning</option>
@@ -122,10 +152,12 @@
       <tr id="greenRow">
         <td colspan="10" class="green-sum">Final Balance: ₹ 0</td>
       </tr>
+
+
     </table>
 
     <br />
-    <button type="button" onclick="addRow()" class="no-print">Add Row</button>
+    <button type="button" onclick="addRow()" class="no-print" id="addRowBtn">Add One More Row</button>
     <button type="button" onclick="exportPDF()" class="no-print">Export PDF</button>
   </form>
 
@@ -146,7 +178,8 @@
         '<input type="number" class="bank" value="0" />'
       ];
       for (let i = 0; i < columns.length; i++) {
-        row.insertCell(i).innerHTML = columns[i];
+        const cell = row.insertCell(i);
+        cell.innerHTML = columns[i];
       }
       attachListeners();
     }
@@ -172,20 +205,24 @@
       document.getElementById("totalDena").textContent = dena;
       document.getElementById("totalLena").textContent = lena;
       document.getElementById("totalBank").textContent = bank;
+
       document.getElementById("yellowSum").textContent = yellowTotal;
       document.getElementById("orangeSum").textContent = orangeTotal;
-      document.getElementById("greenRow").querySelector("td").textContent = `Balance: ₹ ${greenTotal}`;
+      document.getElementById("greenRow").querySelector("td").textContent =
+        Balance: ₹ ${greenTotal};
     }
 
+
     function attachListeners() {
-      document.querySelectorAll("input[type='number']").forEach(input => {
-        input.addEventListener("input", calculateTotals);
-      });
-      document.querySelectorAll("input[type='text'], select").forEach(input => {
-        input.addEventListener("input", () => {
-          input.value = input.value.toUpperCase();
+      document.querySelectorAll("input[type='number']")
+        .forEach(input => input.addEventListener("input", calculateTotals));
+        
+      document.querySelectorAll("input[type='text'], select")
+        .forEach(input => {
+          input.addEventListener("input", () => {
+            input.value = input.value.toUpperCase();
+          });
         });
-      });
     }
 
     function exportPDF() {
@@ -193,30 +230,27 @@
       const buttons = form.querySelectorAll(".no-print");
       buttons.forEach(btn => btn.style.display = "none");
 
-      html2canvas(form, { scale: 2, useCORS: true }).then(canvas => {
+      html2canvas(form, { scale: 2 }).then(canvas => {
         const imgData = canvas.toDataURL("image/png");
         const pdf = new jspdf.jsPDF({
-          orientation: 'landscape',
+          orientation: 'landscape', // ← switched to vertical
           unit: 'mm',
           format: 'a4'
         });
 
         const pageWidth = pdf.internal.pageSize.getWidth();
         const pageHeight = pdf.internal.pageSize.getHeight();
+
         const imgProps = pdf.getImageProperties(imgData);
+        const imgWidth = pageWidth;
+        const imgHeight = (imgProps.height * imgWidth) / imgProps.width;
 
-        let imgWidth = pageWidth;
-        let imgHeight = (imgProps.height * imgWidth) / imgProps.width;
-
-        if (imgHeight > pageHeight) {
-          imgHeight = pageHeight;
-          imgWidth = (imgProps.width * imgHeight) / imgProps.height;
+        let y = 0;
+        if (imgHeight < pageHeight) {
+          y = (pageHeight - imgHeight) / 2;
         }
 
-        const x = (pageWidth - imgWidth) / 2;
-        const y = (pageHeight - imgHeight) / 2;
-
-        pdf.addImage(imgData, 'PNG', x, y, imgWidth, imgHeight);
+        pdf.addImage(imgData, 'PNG', 0, y, imgWidth, imgHeight);
         pdf.save("balance-sheet.pdf");
 
         buttons.forEach(btn => btn.style.display = "inline-block");
